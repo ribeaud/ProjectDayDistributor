@@ -1,0 +1,11 @@
+ID	Title	Maximum participants number
+1	Introduction to programming	4
+2	Self-made video	3
+3	Knit	10
+4	Course 4	3
+5	Course 5	4
+6	Course 6	16
+7	Course 7	12
+8	Course 8	5
+9	Course 9	5
+10	Course 10	10
