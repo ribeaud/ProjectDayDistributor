@@ -1,11 +1,11 @@
 Name	Prioritized list
-Philomène	3
-Phénicia	1
-Student 3	2
-Student 4	4
-Student 5	5
-Student 6	6
-Student 7	7
-Student 8	8
-Student 9	0
-Student 10	9
+Philomène	3,2,0
+Phénicia	1,9,0
+Student 3	2,4,1
+Student 4	2,8,7
+Student 5	5,0,8
+Student 6	6,2,3
+Student 7	7,6,9
+Student 8	8,2,7
+Student 9	0,9,2
+Student 10	9,5,6

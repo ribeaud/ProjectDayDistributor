@@ -4,10 +4,15 @@ import unicodecsv as csv
 from ortools.graph import pywrapgraph
 
 class Course:
+    '''
+    A course. A course has an unique ID (a number), a title and a maximum number of participants.
+    For each possible participant, we should have a numbered node. And first come first serve. It means, the cost
+    should be higher for the final participants.
+    '''
     def __init__(self, id, title, maxParticipants):
         self.id = id
         self.title = title
-        self.maxParticipants = maxParticipants
+        self.free = self.maxParticipants = maxParticipants
 
     def __repr__(self):
         return str(self.__class__.__name__) + ": " + str(self.__dict__)
@@ -72,14 +77,14 @@ def main():
                 assignment.AddArcWithCost(worker, task, cost[worker][task])
     solve_status = assignment.Solve()
     if solve_status == assignment.OPTIMAL:
-        print('Total cost = ', assignment.OptimalCost())
-        print()
+        print 'Total cost = %d' % assignment.OptimalCost()
+        print
         for i in range(0, assignment.NumNodes()):
-            print('Worker %d assigned to task %d.  Cost = %d' % (i, assignment.RightMate(i), assignment.AssignmentCost(i)))
+            print 'Worker %d assigned to task %d. Cost = %d' % (i, assignment.RightMate(i), assignment.AssignmentCost(i))
     elif solve_status == assignment.INFEASIBLE:
-        print('No assignment is possible.')
+        print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
-        print('Some input costs are too large and may cause an integer overflow.')
+        print 'Some input costs are too large and may cause an integer overflow.'
     print 'Finished!'
 
 if __name__ == '__main__':
