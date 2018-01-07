@@ -1,7 +1,9 @@
-from itertools import repeat
+from random import shuffle
 
 from ortools.graph import pywrapgraph
 from parser import default_read_and_filter_csv
+from utility import fill
+
 
 class Course:
     '''
@@ -18,7 +20,7 @@ class Course:
     def __repr__(self):
         return str(self.__class__.__name__) + ": " + str(self.__dict__)
 
-class Participant:
+class Student:
     def __init__(self, id, name, courses):
         self.id = id
         self.name = name
@@ -30,54 +32,62 @@ class Participant:
 def load_courses():
     courses = []
     lines = default_read_and_filter_csv('courses.txt')
-    node = 0
     for line in lines:
         max_students = int(line['max_students'])
         course = Course(int(line['id']), line['title'].strip(), max_students)
-        to = node + max_students
-        course.nodes = range(node, to)
         courses.append(course)
-        node = to
     courses.sort(key=lambda course: course.id)
     return courses
 
+def set_course_nodes(courses):
+    node = 0
+    for course in courses:
+        to = node + course.max_students
+        course.nodes = range(node, to)
+        node = to
+    return node
+
 def load_students():
-    participants = []
+    students = []
     lines = default_read_and_filter_csv('students.txt')
     index = 0
     for line in lines:
-        participants.append(Participant(index, line['name'], line['prioritized_list']))
+        students.append(Student(index, line['name'], line['prioritized_list']))
         index += 1
-    return participants
+    # Randomly shuffle the students
+    shuffle(students)
+    return students
 
-def create_costs(participants, courses_length):
+def create_costs(students, courses, node_count):
     costs = []
-    for participant in participants:
-        cost = fill(courses_length, 'NA')
-        # Assuming we go over all the courses this way
-        for course in range(courses_length):
-            if course in participant.courses:
-                cost[course] = participant.courses.index(course)
+    for student in students:
+        cost = fill(node_count, 'NA')
+        for node in range(node_count):
+            course = get_course(courses, node)
+            if course.id in student.courses:
+                cost[node] = student.courses.index(course.id)
         costs.append(cost)
     return costs
-
-def fill(length, value):
-    return list(repeat(value, length))
 
 def get_course(courses, node):
     '''
     For given index returns corresponding course.
     '''
-    filtered = filter(lambda course: course.id == node, courses)
+    filtered = filter(lambda course: node in course.nodes, courses)
     return filtered[0]
 
 def get_student(students, index):
+    '''
+    Returns the student found at given index.
+    '''
     return students[index]
 
+# Taken from 'https://developers.google.com/optimization/assignment/assignment_min_cost_flow'
 def main():
     courses = load_courses()
+    node_count = set_course_nodes(courses)
     students = load_students()
-    costs = create_costs(students, len(courses))
+    costs = create_costs(students, courses, node_count)
     print costs
     rows = len(costs)
     cols = len(costs[0])
