@@ -1,7 +1,7 @@
 from itertools import repeat
 
-import unicodecsv as csv
 from ortools.graph import pywrapgraph
+from parser import default_read_and_filter_csv
 
 class Course:
     '''
@@ -9,10 +9,10 @@ class Course:
     For each possible participant, we should have a numbered node. And first come first serve. It means, the cost
     should be higher for the final participants.
     '''
-    def __init__(self, id, title, maxParticipants):
+    def __init__(self, id, title, max_participants):
         self.id = id
         self.title = title
-        self.free = self.maxParticipants = maxParticipants
+        self.free = self.max_participants = max_participants
 
     def __repr__(self):
         return str(self.__class__.__name__) + ": " + str(self.__dict__)
@@ -28,25 +28,19 @@ class Participant:
 
 def load_courses():
     courses = []
-    with open('courses.txt', 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter='\t')
-        # Ignore header
-        reader.next()
-        for row in reader:
-            courses.append(Course(int(row[0]), row[1], row[2]))
+    lines = default_read_and_filter_csv('courses.txt')
+    for line in lines:
+        courses.append(Course(int(line['id']), line['title'], line['max_participants']))
     courses.sort(key=lambda course: course.id)
     return courses
 
 def load_participants():
     participants = []
-    with open('participants.txt', 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter='\t')
-        # Ignore header
-        reader.next()
-        index = 0
-        for row in reader:
-            participants.append(Participant(index, row[0], row[1]))
-            index += 1
+    lines = default_read_and_filter_csv('participants.txt')
+    index = 0
+    for line in lines:
+        participants.append(Participant(index, line['name'], line['prioritized_list']))
+        index += 1
     return participants
 
 def create_cost_array(participants, courses_length):
