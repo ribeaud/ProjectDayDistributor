@@ -7,8 +7,9 @@ from utility import fill
 
 class Course:
     '''
-    A course. A course has an unique ID (a number), a title and a maximum number of students.
-    For each possible student/place, we should have a numbered node. And first come first serve. It means, the cost
+    A course has an unique ID (a number), a title and a maximum number of participants (students).
+
+    For each possible student/place, we should have a numbered node. First come first serve: it means, the cost
     should be higher for the final students.
     '''
     def __init__(self, id, title, max_students):
@@ -21,6 +22,9 @@ class Course:
         return str(self.__class__.__name__) + ": " + str(self.__dict__)
 
 class Student:
+    '''
+    A student (or course participant). It has an ID, a name and a list of courses in which he is interested.
+    '''
     def __init__(self, id, name, courses):
         self.id = id
         self.name = name
@@ -36,10 +40,17 @@ def load_courses():
         max_students = int(line['max_students'])
         course = Course(int(line['id']), line['title'].strip(), max_students)
         courses.append(course)
+    # We sort the courses by their ID
     courses.sort(key=lambda course: course.id)
     return courses
 
 def set_course_nodes(courses):
+    '''
+    A course generates as many nodes as the maximum number of attendees.
+
+    Returns:
+        The total number of nodes.
+    '''
     node = 0
     for course in courses:
         to = node + course.max_students
@@ -65,13 +76,17 @@ def create_costs(students, courses, node_count):
         for node in range(node_count):
             course = get_course(courses, node)
             if course.id in student.courses:
+                # The cost is proportional to the position of the course in the prioritized list:
+                # the higher the index, the higher the cost.
                 cost[node] = student.courses.index(course.id)
         costs.append(cost)
     return costs
 
 def get_course(courses, node):
     '''
-    For given index returns corresponding course.
+    For given node returns corresponding course.
+
+    To each course have been allocated some node numbers.
     '''
     filtered = filter(lambda course: node in course.nodes, courses)
     return filtered[0]
@@ -85,11 +100,13 @@ def get_student(students, index):
 # Taken from 'https://developers.google.com/optimization/assignment/assignment_min_cost_flow'
 def main():
     courses = load_courses()
+    # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
     students = load_students()
     costs = create_costs(students, courses, node_count)
-    print costs
+    # Students
     rows = len(costs)
+    # Courses
     cols = len(costs[0])
     assignment = pywrapgraph.LinearSumAssignment()
     for student in range(rows):
