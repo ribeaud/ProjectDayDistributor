@@ -1,48 +1,7 @@
-from random import shuffle
-
 from ortools.graph import pywrapgraph
-from parser import default_read_and_filter_csv
+
+from loader import load_courses, load_students
 from utility import fill
-
-
-class Course:
-    '''
-    A course has an unique ID (a number), a title and a maximum number of participants (students).
-
-    For each possible student/place, we should have a numbered node. First come first serve: it means, the cost
-    should be higher for the final students.
-    '''
-    def __init__(self, id, title, max_students):
-        self.id = id
-        self.title = title
-        # The number of free places left.
-        self.free = self.max_students = max_students
-
-    def __repr__(self):
-        return str(self.__class__.__name__) + ": " + str(self.__dict__)
-
-class Student:
-    '''
-    A student (or course participant). It has an ID, a name and a list of courses in which he is interested.
-    '''
-    def __init__(self, id, name, courses):
-        self.id = id
-        self.name = name
-        self.courses = [int(course) for course in courses.split(',')]
-
-    def __repr__(self):
-        return str(self.__class__.__name__) + ": " + str(self.__dict__)
-
-def load_courses():
-    courses = []
-    lines = default_read_and_filter_csv('courses.txt')
-    for line in lines:
-        max_students = int(line['max_students'])
-        course = Course(int(line['id']), line['title'].strip(), max_students)
-        courses.append(course)
-    # We sort the courses by their ID
-    courses.sort(key=lambda course: course.id)
-    return courses
 
 def set_course_nodes(courses):
     '''
@@ -57,17 +16,6 @@ def set_course_nodes(courses):
         course.nodes = range(node, to)
         node = to
     return node
-
-def load_students():
-    students = []
-    lines = default_read_and_filter_csv('students.txt')
-    index = 0
-    for line in lines:
-        students.append(Student(index, line['name'], line['prioritized_list']))
-        index += 1
-    # Randomly shuffle the students
-    shuffle(students)
-    return students
 
 def create_costs(students, courses, node_count):
     costs = []
@@ -97,7 +45,7 @@ def get_student(students, index):
     '''
     return students[index]
 
-# Taken from 'https://developers.google.com/optimization/assignment/assignment_min_cost_flow'
+# Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
     courses = load_courses()
     # Set 'nodes' property for each course.
