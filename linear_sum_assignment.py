@@ -32,8 +32,8 @@ def create_costs(students, courses, node_count):
                 # the higher the index, the higher the cost.
                 cost[node] = student.courses.index(course.id)
         costs.append(cost)
-    # If I do NOT have enough students, we will add some ghost students with maximum cost for each course. They
-    # should be taken as last.
+    # If I do NOT have enough students, we will add some ghost students with maximum cost (here '1000') for each course.
+    # They should be taken as last.
     max_cost = fill(node_count, 1000)
     for i in range(node_count - len(students)):
         costs.append(max_cost)
@@ -83,6 +83,7 @@ def main():
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
+            # If student NOT found, then this is a ghost one
             if std is not None:
                 print "Student '%s' assigned to course '%s' (%d). Cost = %d." % (
                     std.name, crse.title, crse.id, assignment.AssignmentCost(i))
