@@ -1,7 +1,9 @@
+import sys
 from ortools.graph import pywrapgraph
 
 from loader import load_courses, load_students
 from utility import fill
+
 
 def set_course_nodes(courses):
     '''
@@ -17,9 +19,11 @@ def set_course_nodes(courses):
         node = to
     return node
 
+
 def create_costs(students, courses, node_count):
     costs = []
     for student in students:
+        # Originally populate wiht 'NA'
         cost = fill(node_count, 'NA')
         for node in range(node_count):
             course = get_course(courses, node)
@@ -28,7 +32,13 @@ def create_costs(students, courses, node_count):
                 # the higher the index, the higher the cost.
                 cost[node] = student.courses.index(course.id)
         costs.append(cost)
+    # If I do NOT have enough students, we will add some ghost students with maximum cost for each course. They
+    # should be taken as last.
+    max_cost = fill(node_count, 1000)
+    for i in range(node_count - len(students)):
+        costs.append(max_cost)
     return costs
+
 
 def get_course(courses, node):
     '''
@@ -39,11 +49,13 @@ def get_course(courses, node):
     filtered = filter(lambda course: node in course.nodes, courses)
     return filtered[0]
 
+
 def get_student(students, index):
     '''
     Returns the student found at given index.
     '''
-    return students[index]
+    return students[index] if index < len(students) else None
+
 
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
@@ -51,6 +63,10 @@ def main():
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
     students = load_students()
+    student_count = len(students)
+    if (student_count > node_count):
+        print 'We do NOT have enough course places: %d < %d!' % (node_count, student_count)
+        sys.exit(0)
     costs = create_costs(students, courses, node_count)
     # Students
     rows = len(costs)
@@ -67,12 +83,15 @@ def main():
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
-            print "Student '%s' assigned to course '%s' (%d). Cost = %d." % (std.name, crse.title, crse.id, assignment.AssignmentCost(i))
+            if std is not None:
+                print "Student '%s' assigned to course '%s' (%d). Cost = %d." % (
+                    std.name, crse.title, crse.id, assignment.AssignmentCost(i))
     elif solve_status == assignment.INFEASIBLE:
         print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
         print 'Some input costs are too large and may cause an integer overflow.'
     print 'Finished!'
+
 
 if __name__ == '__main__':
     main()

@@ -3,6 +3,7 @@ from random import shuffle
 from classes import Course, Student
 from parser import default_read_and_filter_csv
 
+
 def load_courses():
     courses = []
     lines = default_read_and_filter_csv('courses.txt')
@@ -14,6 +15,7 @@ def load_courses():
     courses.sort(key=lambda course: course.id)
     return courses
 
+
 def load_students():
     students = []
     lines = default_read_and_filter_csv('students.txt')
@@ -24,4 +26,3 @@ def load_students():
     # Randomly shuffle the students
     shuffle(students)
     return students
-

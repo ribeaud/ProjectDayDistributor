@@ -1,11 +1,11 @@
 id	title	max_students
-0	Introduction to programming	1
-1	Self-made video	1
+0	Introduction to programming	4
+1	Self-made video	2
 2	Knit	1
-3	Course 4	2
-4	Course 5	1
-5	Course 6	1
-6	Course 7	1
+3	Course 4	10
+4	Course 5	5
+5	Course 6	2
+6	Course 7	3
 7	Course 8	1
-8	Course 9	1
+8	Course 9	2
 9	Course 10	1
