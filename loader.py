@@ -24,5 +24,6 @@ def load_students():
         students.append(Student(index, line['name'], line['prioritized_list']))
         index += 1
     # Randomly shuffle the students
-    shuffle(students)
+    for i in range(3):
+        shuffle(students)
     return students

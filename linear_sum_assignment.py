@@ -1,4 +1,6 @@
+from __future__ import division
 import sys
+
 from ortools.graph import pywrapgraph
 
 from loader import load_courses, load_students
@@ -29,14 +31,15 @@ def create_costs(students, courses, node_count):
             course = get_course(courses, node)
             if course.id in student.courses:
                 # The cost is proportional to the position of the course in the prioritized list:
-                # the higher the index, the higher the cost.
-                cost[node] = student.courses.index(course.id)
+                # the higher the index, the higher the cost, multiplied by course cost
+                cost[node] = student.courses.index(course.id) * course.cost
         costs.append(cost)
     # If I do NOT have enough students, we will add some ghost students with maximum cost (here '1000') for each course.
     # They should be taken as last.
     diff = node_count - len(students)
     if diff > 0:
-        print "There are more course seats than students. We need %d ghost participants." % diff
+        print "There are more course seats (%d) than students (%d). We need %d ghost participants." % (
+        node_count, len(students), diff)
         max_cost = fill(node_count, 1000)
         for i in range(diff):
             costs.append(max_cost)
@@ -65,6 +68,9 @@ def main():
     courses = load_courses()
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
+    # Set cost for each course: the higher 'max_students', the lower the cost
+    for course in courses:
+        course.cost = int(round(node_count / course.max_students))
     students = load_students()
     student_count = len(students)
     if (student_count > node_count):

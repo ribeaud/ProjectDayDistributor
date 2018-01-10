@@ -1,7 +1,7 @@
 class Course:
     '''
     A course has an unique ID (a number), a title, a maximum number of participants (students) and the
-    students associated ot it.
+    students associated to it.
 
     For each possible student/place, we should have a numbered node.
     '''
