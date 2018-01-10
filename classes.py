@@ -1,15 +1,20 @@
 class Course:
     '''
-    A course has an unique ID (a number), a title and a maximum number of participants (students).
+    A course has an unique ID (a number), a title, a maximum number of participants (students) and the
+    students associated ot it.
 
-    For each possible student/place, we should have a numbered node. First come first serve: it means, the cost
-    should be higher for the final students.
+    For each possible student/place, we should have a numbered node.
     '''
 
     def __init__(self, id, title, max_students):
         self.id = id
         self.title = title
         self.max_students = max_students
+        # The students assigned to this course
+        self.students = []
+
+    def add_student(self, student):
+        self.students.append(student)
 
     def __repr__(self):
         return str(self.__class__.__name__) + ": " + str(self.__dict__)
