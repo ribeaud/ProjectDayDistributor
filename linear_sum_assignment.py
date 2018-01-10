@@ -34,9 +34,12 @@ def create_costs(students, courses, node_count):
         costs.append(cost)
     # If I do NOT have enough students, we will add some ghost students with maximum cost (here '1000') for each course.
     # They should be taken as last.
-    max_cost = fill(node_count, 1000)
-    for i in range(node_count - len(students)):
-        costs.append(max_cost)
+    diff = node_count - len(students)
+    if diff > 0:
+        print "There are more course seats than students. We need %d ghost participants." % diff
+        max_cost = fill(node_count, 1000)
+        for i in range(diff):
+            costs.append(max_cost)
     return costs
 
 
@@ -80,17 +83,23 @@ def main():
     solve_status = assignment.Solve()
     if solve_status == assignment.OPTIMAL:
         print 'Total cost = %d' % assignment.OptimalCost()
+        print
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
-            # If student NOT found, then this is a ghost one
+            # If student NOT found, then this is a ghost one, no need to consider
             if std is not None:
+                crse.add_student(std)
                 print "Student '%s' assigned to course '%s' (%d). Cost = %d." % (
                     std.name, crse.title, crse.id, assignment.AssignmentCost(i))
+        print
+        for course in courses:
+            print "Course '%s' (%d) has %d participant(s)." % (course.title, course.id, len(course.students))
     elif solve_status == assignment.INFEASIBLE:
         print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
         print 'Some input costs are too large and may cause an integer overflow.'
+    print
     print 'Finished!'
 
 
