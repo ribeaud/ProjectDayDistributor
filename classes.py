@@ -32,6 +32,7 @@ class Student:
         self.id = id
         self.name = name
         self.courses = [int(course) for course in courses.split(',')] if courses is not None else []
+        assert len(self.courses) > 1, "Student '%s' (%d) do NOT register any course" % (name, id)
 
     def __repr__(self):
         return str(self.__class__.__name__) + ": " + str(self.__dict__)

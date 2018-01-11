@@ -31,7 +31,9 @@ def create_costs(students, courses, node_count):
             course = get_course(courses, node)
             if course.id in student.courses:
                 # The cost is proportional to the position of the course in the prioritized list:
-                # the higher the index, the higher the cost, multiplied by course cost
+                # the higher the index, the higher the cost, multiplied by course cost. When the index
+                # is zero, then there is no reason that the course does NOT get selected if we still
+                # have some free seats.
                 cost[node] = student.courses.index(course.id) * course.cost
         costs.append(cost)
     # If I do NOT have enough students, we will add some ghost students with maximum cost (here '1000') for each course.
@@ -69,8 +71,9 @@ def main():
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
     # Set cost for each course: the higher 'max_students', the lower the cost
+    m = max([course.max_students for course in courses])
     for course in courses:
-        course.cost = int(round(node_count / course.max_students))
+        course.cost = m - course.max_students + 1
     students = load_students()
     student_count = len(students)
     if (student_count > node_count):
