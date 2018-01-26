@@ -5,9 +5,9 @@ which must have following format:
 ## courses.txt
 ```
 id	title	max_students
-0	Introduction to programming	4
-1	Self-made video	2
-2	Knit	1
+0	Course 0	4
+1	Course 1	2
+2	Course 2	1
 ...
 ```
 
@@ -16,7 +16,7 @@ id	title	max_students
 name	prioritized_list
 Philomène	3,2,0
 Phénicia	1,9,0
-Student 3	2,4,1
+Tanja	2,4,1
 ...
 ```
 Main programs are `linear_sum_assignment.py`
@@ -37,3 +37,10 @@ Student 'Philomène' assigned to course 'Course 4' (3). Cost = 0.
 
 - https://developers.google.com/optimization/assignment/simple_assignment
 - https://developers.google.com/optimization/assignment/assignment_mip
+
+## Assumptions
+
+- Nothing happens if we do NOT have enough seats available for all the students.
+- Students are deeply shuffled after loading. Because the first student gets
+his first specified seat.
+- Courses providing more seats have a lower cost.

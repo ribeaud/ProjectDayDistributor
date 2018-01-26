@@ -76,7 +76,7 @@ def main():
         course.cost = m - course.max_students + 1
     students = load_students()
     student_count = len(students)
-    if (student_count > node_count):
+    if student_count > node_count:
         print 'We do NOT have enough course places: %d < %d!' % (node_count, student_count)
         sys.exit(0)
     costs = create_costs(students, courses, node_count)
@@ -99,11 +99,11 @@ def main():
             # If student NOT found, then this is a ghost one, no need to consider
             if std is not None:
                 crse.add_student(std)
-                print "Student '%s' assigned to course '%s' (%d). Cost = %d." % (
+                print "Student '%s' assigned to course '%s' (ID: %d). Cost = %d." % (
                     std.name, crse.title, crse.id, assignment.AssignmentCost(i))
         print
         for course in courses:
-            print "Course '%s' (%d) has %d participant(s)." % (course.title, course.id, len(course.students))
+            print "Course '%s' (ID: %d) has %d participant(s)." % (course.title, course.id, len(course.students))
     elif solve_status == assignment.INFEASIBLE:
         print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:

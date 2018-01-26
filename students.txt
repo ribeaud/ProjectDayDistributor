@@ -10,3 +10,10 @@ Katja	8,2,7
 Björn	0,9,2
 Frédéric	9,5,6
 Raymonde	9,5,4
+Albert	1,2,3
+Lourdes	5,4,3
+Arnaud	0,8,7
+Béatrice	6,4,0
+# Let's put 'Course 3', which might contain till 10 persons, as last
+Hans	2,9,3
+Igor	2,9,3
