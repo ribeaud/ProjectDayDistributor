@@ -33,7 +33,7 @@ class DbLoader(AbstractLoader):
         with self.connection.cursor() as cur:
             cur.execute("select id, title, max_students from courses")
             for row in cur:
-                course = Course(int(row.id), row.title.strip(), int(row.max_students))
+                course = Course(int(row['id']), row['title'].strip(), int(row['max_students']))
                 courses.append(course)
         return courses
 
@@ -43,7 +43,7 @@ class DbLoader(AbstractLoader):
             cur.execute("select concat(givenname, ' ', surname) as name, prioritized_list from students")
             index = 0
             for row in cur:
-                students.append(Student(index, row.name.strip(), row.prioritized_list.strip()))
+                students.append(Student(index, row['name'].strip(), row['prioritized_list'].strip()))
                 index += 1
         return students
 

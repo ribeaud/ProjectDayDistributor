@@ -3,7 +3,7 @@ import sys
 
 from ortools.graph import pywrapgraph
 
-from loader import CsvLoader
+from loader import CsvLoader, DbLoader
 from utility import fill
 
 def set_course_nodes(courses):
@@ -62,6 +62,7 @@ def get_student(students, index):
 
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
+    # loader = DbLoader()
     loader = CsvLoader()
     courses = loader.load_courses()
     # Set 'nodes' property for each course.
