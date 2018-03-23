@@ -7,6 +7,9 @@ class Course:
     '''
 
     def __init__(self, id, title, max_students):
+        assert id > -1, "ID MUST be positive"
+        assert len(title) > 0, "Unspecified title"
+        assert max_students > -1, "Max students MUST be positive"
         self.id = id
         self.title = title
         self.max_students = max_students
@@ -28,7 +31,9 @@ class Student:
     '''
 
     def __init__(self, id, name, courses):
-        assert id > -1, "%d MUST be positive" % (id)
+        assert id > -1, "ID MUST be positive"
+        assert len(name) > 0, "Unspecified name"
+        assert len(courses) > 0, "Unspecified course list"
         self.id = id
         self.name = name
         self.courses = [int(course) for course in courses.split(',')] if courses is not None else []

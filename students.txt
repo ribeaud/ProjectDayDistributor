@@ -1,19 +1,19 @@
 name	prioritized_list
-Philomène	3,2,0
-Phénicia	1,9,0
+Philomène	3,2,21
+Phénicia	1,9,21
 Tanja	2,4,1
 Christian	2,8,7
-Marcel	5,0,8
+Marcel	5,21,8
 Nicolas	6,2,3
 Marie-Laure	7,6,9
 Katja	8,2,7
-Björn	0,9,2
+Björn	21,9,2
 Frédéric	9,5,6
 Raymonde	9,5,4
 Albert	1,2,3
 Lourdes	5,4,3
-Arnaud	0,8,7
-Béatrice	6,4,0
+Arnaud	21,8,7
+Béatrice	6,4,21
 # Let's put 'Course 3', which might contain till 10 persons, as last
 Hans	2,9,3
 Igor	2,9,3

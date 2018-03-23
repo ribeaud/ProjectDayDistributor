@@ -40,9 +40,11 @@ class DbLoader(AbstractLoader):
     def load_students(self):
         students = []
         with self.connection.cursor() as cur:
-            cur.execute("select id, concat(givenname, ' ', surname) as name, prioritized_list from students")
+            cur.execute("select concat(givenname, ' ', surname) as name, prioritized_list from students")
+            index = 0
             for row in cur:
-                students.append(Student(row.id, row.name, row.prioritized_list))
+                students.append(Student(index, row.name.strip(), row.prioritized_list.strip()))
+                index += 1
         return students
 
 class CsvLoader(AbstractLoader):
@@ -52,9 +54,7 @@ class CsvLoader(AbstractLoader):
         courses = []
         lines = default_read_and_filter_csv('courses.txt')
         for line in lines:
-            max_students = int(line['max_students'])
-            course = Course(int(line['id']), line['title'].strip(), max_students)
-            courses.append(course)
+            courses.append(Course(int(line['id']), line['title'].strip(), int(line['max_students'])))
         # We sort the courses by their ID
         courses.sort(key=lambda course: course.id)
         return courses
@@ -64,7 +64,7 @@ class CsvLoader(AbstractLoader):
         lines = default_read_and_filter_csv('students.txt')
         index = 0
         for line in lines:
-            students.append(Student(index, line['name'], line['prioritized_list']))
+            students.append(Student(index, line['name'].strip(), line['prioritized_list'].strip()))
             index += 1
         # Randomly shuffle the students
         for i in range(3):
