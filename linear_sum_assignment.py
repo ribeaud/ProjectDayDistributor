@@ -3,9 +3,8 @@ import sys
 
 from ortools.graph import pywrapgraph
 
-from loader import load_courses, load_students
+from loader import CsvLoader
 from utility import fill
-
 
 def set_course_nodes(courses):
     '''
@@ -20,7 +19,6 @@ def set_course_nodes(courses):
         course.nodes = range(node, to)
         node = to
     return node
-
 
 def create_costs(students, courses, node_count):
     costs = []
@@ -47,7 +45,6 @@ def create_costs(students, courses, node_count):
             costs.append(max_cost)
     return costs
 
-
 def get_course(courses, node):
     '''
     For given node returns corresponding course.
@@ -57,24 +54,23 @@ def get_course(courses, node):
     filtered = filter(lambda course: node in course.nodes, courses)
     return filtered[0]
 
-
 def get_student(students, index):
     '''
     Returns the student found at given index.
     '''
     return students[index] if index < len(students) else None
 
-
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
-    courses = load_courses()
+    loader = CsvLoader()
+    courses = loader.load_courses()
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
     # Set cost for each course: the higher 'max_students', the lower the cost
     m = max([course.max_students for course in courses])
     for course in courses:
         course.cost = m - course.max_students + 1
-    students = load_students()
+    students = loader.load_students()
     student_count = len(students)
     if student_count > node_count:
         print 'We do NOT have enough course places: %d < %d!' % (node_count, student_count)
@@ -110,7 +106,6 @@ def main():
         print 'Some input costs are too large and may cause an integer overflow.'
     print
     print 'Finished!'
-
 
 if __name__ == '__main__':
     main()
