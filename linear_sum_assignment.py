@@ -5,6 +5,7 @@ from ortools.graph import pywrapgraph
 
 from loader import CsvLoader, DbLoader
 from utility import fill
+from writer import writeCourses
 
 def set_course_nodes(courses):
     '''
@@ -101,6 +102,7 @@ def main():
         print
         for course in courses:
             print "Course '%s' (ID: %d) has %d participant(s)." % (course.title, course.id, len(course.students))
+        writeCourses(courses)
     elif solve_status == assignment.INFEASIBLE:
         print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:

@@ -40,7 +40,7 @@ class DbLoader(AbstractLoader):
     def load_students(self):
         students = []
         with self.connection.cursor() as cur:
-            cur.execute("select concat(givenname, ' ', surname) as name, prioritized_list from students")
+            cur.execute("select concat(ucase(surname), ' ', givenname) as name, prioritized_list from students")
             index = 0
             for row in cur:
                 students.append(Student(index, row['name'].strip(), row['prioritized_list'].strip()))
