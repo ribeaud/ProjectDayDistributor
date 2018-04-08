@@ -5,7 +5,7 @@ from ortools.graph import pywrapgraph
 
 from loader import CsvLoader, DbLoader
 from utility import fill
-from writer import writeCourses
+from writer import ExcelWriter, ConsoleWriter
 
 def set_course_nodes(courses):
     '''
@@ -57,7 +57,7 @@ def get_course(courses, node):
 
 def get_student(students, index):
     '''
-    Returns the student found at given index.
+    Returns the student found at given index, None otherwise (if given index out of range).
     '''
     return students[index] if index < len(students) else None
 
@@ -72,7 +72,8 @@ def main():
     m = max([course.max_students for course in courses])
     for course in courses:
         course.cost = m - course.max_students + 1
-    students = loader.load_students()
+    # Load and sort the students
+    students = sorted(loader.load_students(), key=lambda stu: stu.name)
     student_count = len(students)
     if student_count > node_count:
         print 'We do NOT have enough course places: %d < %d!' % (node_count, student_count)
@@ -90,19 +91,18 @@ def main():
     solve_status = assignment.Solve()
     if solve_status == assignment.OPTIMAL:
         print 'Total cost = %d' % assignment.OptimalCost()
-        print
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
             # If student NOT found, then this is a ghost one, no need to consider
             if std is not None:
                 crse.add_student(std)
-                print "Student '%s' assigned to course '%s' (ID: %d). Cost = %d." % (
-                    std.name, crse.title, crse.id, assignment.AssignmentCost(i))
-        print
-        for course in courses:
-            print "Course '%s' (ID: %d) has %d participant(s)." % (course.title, course.id, len(course.students))
-        writeCourses(courses)
+                std.course = crse
+                std.cost = assignment.AssignmentCost(i)
+        writer = ConsoleWriter()
+        writer.write_courses(courses)
+        writer.write_students(students)
+        writer.close()
     elif solve_status == assignment.INFEASIBLE:
         print 'No assignment is possible.'
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
