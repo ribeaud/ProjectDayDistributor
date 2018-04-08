@@ -1,11 +1,18 @@
 from __future__ import division
 import sys
+import logging
 
 from ortools.graph import pywrapgraph
 
 from loader import CsvLoader, DbLoader
 from utility import fill
 from writer import ExcelWriter, ConsoleWriter
+
+def init_logging():
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+    return logging.getLogger(__name__)
+
+logger = init_logging()
 
 def set_course_nodes(courses):
     '''
@@ -39,8 +46,7 @@ def create_costs(students, courses, node_count):
     # They should be taken as last.
     diff = node_count - len(students)
     if diff > 0:
-        print "There are more course seats (%d) than students (%d). We need %d ghost participants." % (
-        node_count, len(students), diff)
+        logger.warning("There are more course seats (%d) than students (%d). We need %d ghost participants.", node_count, len(students), diff)
         max_cost = fill(node_count, 1000)
         for i in range(diff):
             costs.append(max_cost)
@@ -76,7 +82,7 @@ def main():
     students = sorted(loader.load_students(), key=lambda stu: stu.name)
     student_count = len(students)
     if student_count > node_count:
-        print 'We do NOT have enough course places: %d < %d!' % (node_count, student_count)
+        logger.error('We do NOT have enough course places: %d < %d!', node_count, student_count)
         sys.exit(0)
     costs = create_costs(students, courses, node_count)
     # Students
@@ -90,7 +96,7 @@ def main():
                 assignment.AddArcWithCost(student, course, costs[student][course])
     solve_status = assignment.Solve()
     if solve_status == assignment.OPTIMAL:
-        print 'Total cost = %d' % assignment.OptimalCost()
+        logger.info('Total cost = %d', assignment.OptimalCost())
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
@@ -104,11 +110,9 @@ def main():
         writer.write_students(students)
         writer.close()
     elif solve_status == assignment.INFEASIBLE:
-        print 'No assignment is possible.'
+        logger.error('No assignment is possible.')
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
-        print 'Some input costs are too large and may cause an integer overflow.'
-    print
-    print 'Finished!'
+        logger.error('Some input costs are too large and may cause an integer overflow.')
 
 if __name__ == '__main__':
     main()
