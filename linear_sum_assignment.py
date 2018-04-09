@@ -3,16 +3,17 @@ import sys
 import logging
 
 from ortools.graph import pywrapgraph
+from enum import Enum
 
 from loader import CsvLoader, DbLoader
 from utility import fill
 from writer import ExcelWriter, ConsoleWriter
 
-def init_logging():
+Env = Enum('Env', 'PROD DEV')
+
+def init_logging(env):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
     return logging.getLogger(__name__)
-
-logger = init_logging()
 
 def set_course_nodes(courses):
     '''
@@ -69,8 +70,6 @@ def get_student(students, index):
 
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
-    # loader = DbLoader()
-    loader = CsvLoader()
     courses = loader.load_courses()
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
@@ -105,7 +104,6 @@ def main():
                 crse.add_student(std)
                 std.course = crse
                 std.cost = assignment.AssignmentCost(i)
-        writer = ConsoleWriter()
         writer.write_courses(courses)
         writer.write_students(students)
         writer.close()
@@ -115,4 +113,14 @@ def main():
         logger.error('Some input costs are too large and may cause an integer overflow.')
 
 if __name__ == '__main__':
+    if len(sys.argv) and sys.argv[0] == 'PROD':
+        env = Env.PROD
+        logger = init_logging(env)
+        loader = DbLoader()
+        writer = ExcelWriter()
+    else:
+        env = Env.DEV
+        logger = init_logging()
+        loader = CsvLoader()
+        writer = ConsoleWriter()
     main()
