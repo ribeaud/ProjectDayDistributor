@@ -1,6 +1,9 @@
 from __future__ import division
+
+import os
 import sys
 import logging
+import numpy as np
 
 from ortools.graph import pywrapgraph
 from enum import Enum
@@ -9,10 +12,16 @@ from loader import CsvLoader, DbLoader
 from utility import fill
 from writer import ExcelWriter, ConsoleWriter
 
-Env = Enum('Env', 'PROD DEV')
+class Env(Enum):
+    DEV = 1
+    PROD = 2
 
 def init_logging(env):
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+    format = '%(asctime)s %(levelname)s %(message)s'
+    if (env is Env.PROD):
+        logging.basicConfig(level=logging.DEBUG, format=format, filename=os.path.splitext(os.path.basename(__file__))[0] + '.log', filemode='w')
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=format)
     return logging.getLogger(__name__)
 
 def set_course_nodes(courses):
@@ -32,7 +41,7 @@ def set_course_nodes(courses):
 def create_costs(students, courses, node_count):
     costs = []
     for student in students:
-        # Originally populate wiht 'NA'
+        # Originally populate with 'NA'
         cost = fill(node_count, 'NA')
         for node in range(node_count):
             course = get_course(courses, node)
@@ -51,6 +60,8 @@ def create_costs(students, courses, node_count):
         max_cost = fill(node_count, 1000)
         for i in range(diff):
             costs.append(max_cost)
+    np.set_printoptions(linewidth=sys.maxint)
+    logger.debug("The cost matrix looks as following: %s.", np.matrix(costs))
     return costs
 
 def get_course(courses, node):
@@ -88,6 +99,7 @@ def main():
     rows = len(costs)
     # Courses
     cols = len(costs[0])
+    logger.info('The cost matrix has %dx%d dimension.', rows, cols)
     assignment = pywrapgraph.LinearSumAssignment()
     for student in range(rows):
         for course in range(cols):
@@ -120,7 +132,7 @@ if __name__ == '__main__':
         writer = ExcelWriter()
     else:
         env = Env.DEV
-        logger = init_logging()
+        logger = init_logging(env)
         loader = CsvLoader()
         writer = ConsoleWriter()
     main()

@@ -1,3 +1,4 @@
+numpy
 enum==0.4.6
 ortools==5.1.4045
 protobuf==3.0.0

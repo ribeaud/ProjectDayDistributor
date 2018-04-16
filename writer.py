@@ -1,9 +1,7 @@
+import sys
 from abc import abstractmethod, ABCMeta
 
 import xlsxwriter
-
-from classes import Course
-
 
 class AbstractWriter:
     """Abstract writer specification."""
@@ -30,12 +28,14 @@ class ConsoleWriter(AbstractWriter):
         for course in courses:
             students = sorted(course.students, key=lambda stu: stu.name)
             print "Course '%s' (ID: %d) has %d participant(s): %s" % (course.title, course.id, len(students), ", ".join([student.name for student in students]))
+            sys.stdout.flush()
 
     def write_students(self, students):
         """Writes the students out"""
         for student in students:
             crse = student.course
             print "Student '%s' assigned to course '%s' (ID: %d). Cost = %d." % (student.name, crse.title, crse.id, student.cost)
+            sys.stdout.flush()
 
 class ExcelWriter(AbstractWriter):
 
