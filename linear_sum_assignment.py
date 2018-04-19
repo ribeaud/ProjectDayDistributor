@@ -97,17 +97,18 @@ def main():
     costs = create_costs(students, courses, node_count)
     # Students
     rows = len(costs)
-    # Courses
+    # Courses (or more exactly the number of course places)
     cols = len(costs[0])
-    logger.info('The cost matrix has %dx%d dimension.', rows, cols)
+    logger.info('The cost matrix has %dx%d dimension (students x course places).', rows, cols)
     assignment = pywrapgraph.LinearSumAssignment()
     for student in range(rows):
         for course in range(cols):
+            # 'NA' means that the student is NOT interested in this course
             if costs[student][course] != 'NA':
                 assignment.AddArcWithCost(student, course, costs[student][course])
     solve_status = assignment.Solve()
     if solve_status == assignment.OPTIMAL:
-        logger.info('Total cost = %d', assignment.OptimalCost())
+        logger.info('Total optimal cost is %d.', assignment.OptimalCost())
         for i in range(0, assignment.NumNodes()):
             crse = get_course(courses, assignment.RightMate(i))
             std = get_student(students, i)
@@ -128,11 +129,11 @@ if __name__ == '__main__':
     if len(sys.argv) and sys.argv[0] == 'PROD':
         env = Env.PROD
         logger = init_logging(env)
-        loader = DbLoader()
-        writer = ExcelWriter()
+        loader = DbLoader(logger)
+        writer = ExcelWriter(logger)
     else:
         env = Env.DEV
         logger = init_logging(env)
-        loader = CsvLoader()
-        writer = ConsoleWriter()
+        loader = CsvLoader(logger)
+        writer = ConsoleWriter(logger)
     main()

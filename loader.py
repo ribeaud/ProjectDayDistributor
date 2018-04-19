@@ -23,10 +23,11 @@ class AbstractLoader:
 
 class DbLoader(AbstractLoader):
     """Loader based on database."""
-    
-    def __init__(self):
+
+    def __init__(self, logger):
         # Connect to the database
         self.connection = pymysql.connect(host='localhost', user='root', password='', db='ogw', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+        self.logger = logger
 
     def load_courses(self):
         courses = []
@@ -49,6 +50,9 @@ class DbLoader(AbstractLoader):
 
 class CsvLoader(AbstractLoader):
     """Loader based on CSV files."""
+
+    def __init__(self, logger):
+        self.logger = logger
 
     def load_courses(self):
         courses = []
