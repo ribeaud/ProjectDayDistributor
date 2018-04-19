@@ -118,7 +118,7 @@ def main():
                 std.course = crse
                 std.cost = assignment.AssignmentCost(i)
         writer.write_courses(courses)
-        writer.write_students(students)
+        writer.write_students(students, courses)
         writer.close()
     elif solve_status == assignment.INFEASIBLE:
         logger.error('No assignment is possible.')

@@ -2,6 +2,13 @@ from abc import abstractmethod, ABCMeta
 
 import xlsxwriter
 
+def get_course(courses, id):
+    '''
+    For given ID returns corresponding course.
+    '''
+    filtered = filter(lambda course: course.id == id, courses)
+    return filtered[0]
+
 class AbstractWriter:
     """Abstract writer specification."""
     # meta class is used to define other classes
@@ -13,7 +20,7 @@ class AbstractWriter:
         return
 
     @abstractmethod
-    def write_students(self, students):
+    def write_students(self, students, courses):
         """Writes the students out"""
         return
 
@@ -31,11 +38,12 @@ class ConsoleWriter(AbstractWriter):
             students = sorted(course.students, key=lambda stu: stu.name)
             self.logger.info("Course '%s' (ID: %d) has %d participant(s): %s.", course.title, course.id, len(students), ", ".join([student.name for student in students]))
 
-    def write_students(self, students):
+    def write_students(self, students, courses):
         """Writes the students out"""
         for student in students:
             crse = student.course
-            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Cost = %d.", student.name, crse.title, crse.id, student.cost)
+            selection = ["'" + get_course(courses, course).title + "'" for course in student.courses]
+            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Selection = [%s]. Cost = %d.", student.name, crse.title, crse.id, ', '.join(selection), student.cost)
 
 class ExcelWriter(AbstractWriter):
 
@@ -45,13 +53,13 @@ class ExcelWriter(AbstractWriter):
         self.workbook = xlsxwriter.Workbook('assignment.xlsx')
 
     def write_courses(self, courses):
-        # Create a workbook and add a worksheet.
+        # Add 'Courses' worksheet.
         worksheet = self.workbook.add_worksheet('Courses')
         bold = self.workbook.add_format({'bold': True})
 
         col = 0
 
-        # Iterate over the data and write it out row by row.
+        # Iterate over the data and write them out row by row.
         for course in courses:
             worksheet.write(0, col, course.title, bold)
             row = 1
@@ -62,8 +70,8 @@ class ExcelWriter(AbstractWriter):
             col += 1
 
 
-    def write_students(self, students):
-        # Create a workbook and add a worksheet.
+    def write_students(self, students, courses):
+        # Add 'Students' worksheet.
         worksheet = self.workbook.add_worksheet('Students')
         bold = self.workbook.add_format({'bold': True})
 
@@ -72,16 +80,19 @@ class ExcelWriter(AbstractWriter):
         worksheet.write(0, 1, "Course", bold)
         worksheet.write(0, 2, "Selection", bold)
 
-        # Iterate over the data and write it out row by row.
+        row = 1
+
+        # Iterate over the students.
         for student in students:
-            row = 1
             col = 0
-            crse = student.course
+            course = student.course
+            selection = ["'" + get_course(courses, course).title + "'" for course in student.courses]
             worksheet.write(row, col, student.name)
             col += 1
-            worksheet.write(row, col, "%s (ID: %d)" % (crse.title, crse.id))
+            worksheet.write(row, col, "%s (ID: %d)" % (course.title, course.id))
             col += 1
-            worksheet.write(row, col, student.courses)
+            worksheet.write(row, col, selection)
+            row += 1
 
     def close(self):
         self.workbook.close()
