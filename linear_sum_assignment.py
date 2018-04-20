@@ -143,5 +143,5 @@ if __name__ == '__main__':
         env = Env.DEV
         logger = init_logging(env)
         loader = CsvLoader(logger)
-        writer = ExcelWriter(logger)
+        writer = ConsoleWriter(logger)
     main()
