@@ -1,5 +1,3 @@
-from random import shuffle
-
 from classes import Course, Student
 from parser import default_read_and_filter_csv
 import pymysql.cursors
@@ -70,7 +68,4 @@ class CsvLoader(AbstractLoader):
         for line in lines:
             students.append(Student(index, line['name'].strip(), line['prioritized_list'].strip()))
             index += 1
-        # Randomly shuffle the students
-        for i in range(3):
-            shuffle(students)
         return students

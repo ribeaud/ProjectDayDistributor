@@ -36,6 +36,7 @@ class Student:
         assert len(courses) > 0, "Unspecified course list"
         self.id = id
         self.name = name
+        # 'courses' is an int list
         self.courses = [int(course) for course in courses.split(',')] if courses is not None else []
         assert len(self.courses) > 1, "Student '%s' (%d) do NOT register any course" % (name, id)
 

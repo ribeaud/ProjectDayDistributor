@@ -2,7 +2,7 @@ from abc import abstractmethod, ABCMeta
 
 import xlsxwriter
 
-def get_course(courses, id):
+def get_course_by_id(courses, id):
     '''
     For given ID returns corresponding course.
     '''
@@ -41,9 +41,9 @@ class ConsoleWriter(AbstractWriter):
     def write_students(self, students, courses):
         """Writes the students out"""
         for student in students:
-            crse = student.course
-            selection = ["'" + get_course(courses, course).title + "'" for course in student.courses]
-            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Selection = [%s]. Cost = %d.", student.name, crse.title, crse.id, ', '.join(selection), student.cost)
+            course = get_course_by_id(courses, student.course)
+            selection = ["'" + get_course_by_id(courses, course_id).title + "'" for course_id in student.courses]
+            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Selection = [%s]. Cost = %d.", student.name, course.title, course.id, ', '.join(selection), student.cost)
 
 class ExcelWriter(AbstractWriter):
 
@@ -61,8 +61,9 @@ class ExcelWriter(AbstractWriter):
 
         # Iterate over the data and write them out row by row.
         for course in courses:
-            worksheet.write(0, col, course.title, bold)
-            row = 1
+            worksheet.write(0, col, course.title + (" (ID: %d)" % course.id), bold)
+            worksheet.write(1, col, "Max: %d" % course.max_students, bold)
+            row = 3
             students = sorted(course.students, key=lambda stu: stu.name)
             for student in students:
                 worksheet.write(row, col, student.name)
@@ -85,13 +86,13 @@ class ExcelWriter(AbstractWriter):
         # Iterate over the students.
         for student in students:
             col = 0
-            course = student.course
-            selection = ["'" + get_course(courses, course).title + "'" for course in student.courses]
+            course = get_course_by_id(courses, student.course)
+            selection = [get_course_by_id(courses, course_id).title for course_id in student.courses]
             worksheet.write(row, col, student.name)
             col += 1
             worksheet.write(row, col, "%s (ID: %d)" % (course.title, course.id))
             col += 1
-            worksheet.write(row, col, selection)
+            worksheet.write(row, col, ', '.join(selection))
             row += 1
 
     def close(self):

@@ -1,5 +1,7 @@
 from __future__ import division
 
+from random import shuffle
+
 import os
 import sys
 import logging
@@ -44,7 +46,7 @@ def create_costs(students, courses, node_count):
         # Originally populate with 'NA'
         cost = fill(node_count, 'NA')
         for node in range(node_count):
-            course = get_course(courses, node)
+            course = get_course_by_node_id(courses, node)
             if course.id in student.courses:
                 # The cost is proportional to the position of the course in the prioritized list:
                 # the higher the index, the higher the cost, multiplied by course cost. When the index
@@ -64,7 +66,7 @@ def create_costs(students, courses, node_count):
     logger.debug("The cost matrix looks as following: %s.", np.matrix(costs))
     return costs
 
-def get_course(courses, node):
+def get_course_by_node_id(courses, node):
     '''
     For given node returns corresponding course.
 
@@ -81,15 +83,18 @@ def get_student(students, index):
 
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
 def main():
-    courses = loader.load_courses()
+    # Load and sort the courses by name
+    courses = sorted(loader.load_courses(), key=lambda course: course.title)
     # Set 'nodes' property for each course.
     node_count = set_course_nodes(courses)
     # Set cost for each course: the higher 'max_students', the lower the cost
     m = max([course.max_students for course in courses])
     for course in courses:
         course.cost = m - course.max_students + 1
-    # Load and sort the students
-    students = sorted(loader.load_students(), key=lambda stu: stu.name)
+    # Load and randomly shuffle the students
+    students = loader.load_students()
+    for i in range(3):
+        shuffle(students)
     student_count = len(students)
     if student_count > node_count:
         logger.error('We do NOT have enough course places: %d < %d!', node_count, student_count)
@@ -110,14 +115,17 @@ def main():
     if solve_status == assignment.OPTIMAL:
         logger.info('Total optimal cost is %d.', assignment.OptimalCost())
         for i in range(0, assignment.NumNodes()):
-            crse = get_course(courses, assignment.RightMate(i))
+            crse = get_course_by_node_id(courses, assignment.RightMate(i))
             std = get_student(students, i)
             # If student NOT found, then this is a ghost one, no need to consider
             if std is not None:
                 crse.add_student(std)
-                std.course = crse
+                # Store course ID only
+                std.course = crse.id
                 std.cost = assignment.AssignmentCost(i)
         writer.write_courses(courses)
+        # Sort the students before outputting them
+        students = sorted(students, key=lambda student: student.name)
         writer.write_students(students, courses)
         writer.close()
     elif solve_status == assignment.INFEASIBLE:
@@ -135,5 +143,5 @@ if __name__ == '__main__':
         env = Env.DEV
         logger = init_logging(env)
         loader = CsvLoader(logger)
-        writer = ConsoleWriter(logger)
+        writer = ExcelWriter(logger)
     main()
