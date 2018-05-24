@@ -82,7 +82,8 @@ def get_student(students, index):
     return students[index] if index < len(students) else None
 
 # Taken from 'https://developers.google.com/optimization/assignment/simple_assignment'
-def main():
+def main(argv):
+    init_globals(argv)
     # Load and sort the courses by name
     courses = sorted(loader.load_courses(), key=lambda course: course.title)
     # Set 'nodes' property for each course.
@@ -133,8 +134,11 @@ def main():
     elif solve_status == assignment.POSSIBLE_OVERFLOW:
         logger.error('Some input costs are too large and may cause an integer overflow.')
 
-if __name__ == '__main__':
-    if len(sys.argv) and sys.argv[0] == 'PROD':
+def init_globals(argv):
+    global logger
+    global loader
+    global writer
+    if len(argv) and argv[0] == 'PROD':
         env = Env.PROD
         logger = init_logging(env)
         loader = DbLoader(logger)
@@ -144,4 +148,6 @@ if __name__ == '__main__':
         logger = init_logging(env)
         loader = CsvLoader(logger)
         writer = ConsoleWriter(logger)
-    main()
+
+if __name__ == '__main__':
+    main(sys.argv)
