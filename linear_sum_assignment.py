@@ -138,7 +138,7 @@ def init_globals(argv):
     global logger
     global loader
     global writer
-    if len(argv) and argv[0] == 'PROD':
+    if len(argv) > 1 and argv[1] == 'PROD':
         env = Env.PROD
         logger = init_logging(env)
         loader = DbLoader(logger)
