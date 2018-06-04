@@ -9,6 +9,12 @@ def get_course_by_id(courses, id):
     filtered = filter(lambda course: course.id == id, courses)
     return filtered[0]
 
+def student_name(student):
+    if (hasattr(student, 'level')):
+        return "%s (%s)" % (student.name, student.level)
+    else:
+        return student.name
+
 class AbstractWriter:
     """Abstract writer specification."""
     # meta class is used to define other classes
@@ -36,14 +42,14 @@ class ConsoleWriter(AbstractWriter):
         """Writes the courses out"""
         for course in courses:
             students = sorted(course.students, key=lambda stu: stu.name)
-            self.logger.info("Course '%s' (ID: %d) has %d participant(s): %s.", course.title, course.id, len(students), ", ".join([student.name for student in students]))
+            self.logger.info("Course '%s' (ID: %d) has %d participant(s): %s.", course.title, course.id, len(students), ", ".join([student_name(student) for student in students]))
 
     def write_students(self, students, courses):
         """Writes the students out"""
         for student in students:
             course = get_course_by_id(courses, student.course)
             selection = ["'" + get_course_by_id(courses, course_id).title + "'" for course_id in student.courses]
-            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Selection = [%s]. Cost = %d.", student.name, course.title, course.id, ', '.join(selection), student.cost)
+            self.logger.info("Student '%s' assigned to course '%s' (ID: %d). Selection = [%s]. Cost = %d.", student_name(student), course.title, course.id, ', '.join(selection), student.cost)
 
 class ExcelWriter(AbstractWriter):
 
@@ -66,7 +72,7 @@ class ExcelWriter(AbstractWriter):
             row = 3
             students = sorted(course.students, key=lambda stu: stu.name)
             for student in students:
-                worksheet.write(row, col, student.name)
+                worksheet.write(row, col, student_name(student))
                 row += 1
             col += 1
 
@@ -88,7 +94,7 @@ class ExcelWriter(AbstractWriter):
             col = 0
             course = get_course_by_id(courses, student.course)
             selection = [get_course_by_id(courses, course_id).title for course_id in student.courses]
-            worksheet.write(row, col, student.name)
+            worksheet.write(row, col, student_name(student))
             col += 1
             worksheet.write(row, col, "%s (ID: %d)" % (course.title, course.id))
             col += 1
