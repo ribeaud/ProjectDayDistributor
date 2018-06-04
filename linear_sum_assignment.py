@@ -10,6 +10,7 @@ import numpy as np
 from ortools.graph import pywrapgraph
 from enum import Enum
 
+import utility
 from loader import CsvLoader, DbLoader
 from utility import fill
 from writer import ExcelWriter, ConsoleWriter
@@ -126,7 +127,7 @@ def main(argv):
                 std.cost = assignment.AssignmentCost(i)
         writer.write_courses(courses)
         # Sort the students before outputting them
-        students = sorted(students, key=lambda student: student.name)
+        students = utility.sort_students(students)
         writer.write_students(students, courses)
         writer.close()
     elif solve_status == assignment.INFEASIBLE:

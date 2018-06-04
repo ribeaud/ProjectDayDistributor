@@ -2,6 +2,9 @@ from abc import abstractmethod, ABCMeta
 
 import xlsxwriter
 
+import utility
+
+
 def get_course_by_id(courses, id):
     '''
     For given ID returns corresponding course.
@@ -10,6 +13,9 @@ def get_course_by_id(courses, id):
     return filtered[0]
 
 def student_name(student):
+    '''
+    Outputs student name appended by his level if present
+    '''
     if (hasattr(student, 'level')):
         return "%s (%s)" % (student.name, student.level)
     else:
@@ -41,7 +47,7 @@ class ConsoleWriter(AbstractWriter):
     def write_courses(self, courses):
         """Writes the courses out"""
         for course in courses:
-            students = sorted(course.students, key=lambda stu: stu.name)
+            students = utility.sort_students(course.students)
             self.logger.info("Course '%s' (ID: %d) has %d participant(s): %s.", course.title, course.id, len(students), ", ".join([student_name(student) for student in students]))
 
     def write_students(self, students, courses):
@@ -70,7 +76,7 @@ class ExcelWriter(AbstractWriter):
             worksheet.write(0, col, course.title + (" (ID: %d)" % course.id), bold)
             worksheet.write(1, col, "Max: %d" % course.max_students, bold)
             row = 3
-            students = sorted(course.students, key=lambda stu: stu.name)
+            students = utility.sort_students(course.students)
             for student in students:
                 worksheet.write(row, col, student_name(student))
                 row += 1
